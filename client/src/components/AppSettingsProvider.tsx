@@ -32,6 +32,8 @@ type TranslationKey =
   | 'giftCodeAlready'
   | 'giftCodeApplied'
   | 'gotIt'
+  | 'answerLimited'
+  | 'historyTruncated'
   | 'insufficientFundsTitle'
   | 'insufficientFundsBody'
   | 'ok'
@@ -75,8 +77,10 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     giftCodeAlready: 'Код уже использован',
     giftCodeApplied: 'Баланс пополнен на $0.01',
     gotIt: 'Понятно!',
+    answerLimited: 'Ответ ограничен по балансу. Пополните баланс, чтобы продолжить.',
+    historyTruncated: 'История была сокращена из-за лимита.',
     insufficientFundsTitle: 'Недостаточно средств',
-    insufficientFundsBody: 'Пополните баланс или выберите бесплатную модель (например, Xiaomi MiMo V2 Flash).',
+    insufficientFundsBody: 'Пополните баланс и повторите попытку.',
     ok: 'Понятно',
     welcomeBack: 'С возвращением',
     createAccount: 'Создать аккаунт',
@@ -117,8 +121,10 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     giftCodeAlready: 'Code already used',
     giftCodeApplied: 'Balance topped up by $0.01',
     gotIt: 'Got it!',
+    answerLimited: 'Answer limited by balance. Top up to continue.',
+    historyTruncated: 'History was shortened due to limits.',
     insufficientFundsTitle: 'Insufficient funds',
-    insufficientFundsBody: 'Top up your balance or choose a free model (for example, Xiaomi MiMo V2 Flash).',
+    insufficientFundsBody: 'Top up your balance and try again.',
     ok: 'OK',
     welcomeBack: 'Welcome back',
     createAccount: 'Create account',

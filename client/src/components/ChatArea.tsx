@@ -3,6 +3,7 @@ import { api } from '../lib/api';
 import { Loader2, Bot, User as UserIcon } from 'lucide-react';
 import InputArea from './InputArea';
 import BalanceModal from './BalanceModal';
+import { useAppSettings } from './AppSettingsProvider';
 
 interface ChatAreaProps {
   sessionId: string;
@@ -15,13 +16,13 @@ interface Message {
 }
 
 export default function ChatArea({ sessionId, modelId }: ChatAreaProps) {
+  const { t } = useAppSettings();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(false);
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const minBalanceUsd = 0.001;
-  const isFreeModel = modelId === 'xiaomi/mimo-v2-flash';
 
   const readUsdBalance = (): number => {
     const raw = localStorage.getItem('user');
@@ -61,7 +62,7 @@ export default function ChatArea({ sessionId, modelId }: ChatAreaProps) {
   };
 
   const handleSend = async (text: string) => {
-    if (!isFreeModel && readUsdBalance() <= minBalanceUsd) {
+    if (readUsdBalance() <= minBalanceUsd) {
       setIsBalanceModalOpen(true);
       return;
     }
@@ -87,9 +88,15 @@ export default function ChatArea({ sessionId, modelId }: ChatAreaProps) {
         apiKey: null 
       });
 
+      const replyText = String(res.reply ?? '');
+      const warnings: string[] = [];
+      if (res?.prompt_truncated) warnings.push(t('historyTruncated'));
+      if (res?.limited) warnings.push(t('answerLimited'));
+      const assistantText = warnings.length > 0 ? `${replyText}\n\n${warnings.join('\n')}` : replyText;
+
       setMessages([
         ...newMessages,
-        { role: 'assistant', content: [{ text: res.reply }] }
+        { role: 'assistant', content: [{ text: assistantText }] }
       ]);
 
       if (typeof res.balance !== 'undefined') {

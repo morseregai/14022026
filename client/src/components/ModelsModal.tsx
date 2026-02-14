@@ -10,7 +10,7 @@ interface ModelsModalProps {
 
 const MODELS = [
   { id: 'google/gemini-3-flash-preview', name: 'Gemini 3 Flash (Preview)', cost: 'Low' },
-  { id: 'xiaomi/mimo-v2-flash', name: 'Xiaomi MiMo V2 Flash', cost: 'Free' },
+  { id: 'xiaomi/mimo-v2-flash', name: 'Xiaomi MiMo V2 Flash', cost: 'Low' },
   { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', cost: 'Low' },
 ];
 

@@ -14,7 +14,6 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
 
   try {
     const ratesByModel: Record<string, { inputRate: number; outputRate: number }> = {
-      'xiaomi/mimo-v2-flash': { inputRate: 0, outputRate: 0 },
       'google/gemini-3-flash-preview': { inputRate: 1 / 1_000_000, outputRate: 2 / 1_000_000 },
       'openai/gpt-4o-mini': { inputRate: 1 / 1_000_000, outputRate: 2 / 1_000_000 },
     };
@@ -23,8 +22,6 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
       inputRate: 1 / 1_000_000,
       outputRate: 2 / 1_000_000,
     };
-
-    const isFreeModel = inputRate === 0 && outputRate === 0;
 
     const { data: userData, error: userError } = await supabaseAdmin
       .from('users')
@@ -39,12 +36,12 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
     const minBalanceUsd = 0.001;
     const usdBalance = Number(userData.usd_balance);
 
-    if (!isFreeModel && (!Number.isFinite(usdBalance) || usdBalance <= minBalanceUsd)) {
+    if (!Number.isFinite(usdBalance) || usdBalance <= minBalanceUsd) {
         return res.status(403).json({ error: 'Insufficient balance' });
     }
 
     const safeHistory = Array.isArray(history) ? history : [];
-    const messages = [
+    const rawMessages = [
         ...safeHistory.map((h: any) => ({
             role: h.role === 'user' ? 'user' : 'assistant', 
             content: h.parts ? h.parts.map((p: any) => p.text).join('') : h.content
@@ -54,6 +51,40 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
             content: currentParts.map((p: any) => p.text).join('')
         }
     ];
+
+    const maxPromptChars = 12000;
+    const trimMessagesToChars = (arr: Array<{ role: string; content: string }>, maxChars: number) => {
+      const out: Array<{ role: string; content: string }> = [];
+      let total = 0;
+      for (let i = arr.length - 1; i >= 0; i--) {
+        const m = arr[i];
+        const c = String(m?.content ?? '');
+        const nextTotal = total + c.length;
+        if (out.length > 0 && nextTotal > maxChars) break;
+        out.unshift({ role: m.role, content: c });
+        total = nextTotal;
+        if (total >= maxChars) break;
+      }
+      return { messages: out, truncated: out.length !== arr.length, chars: total };
+    };
+
+    const trimmed = trimMessagesToChars(rawMessages as any, maxPromptChars);
+    const messages = trimmed.messages;
+
+    const estimateTokens = (chars: number) => Math.max(1, Math.ceil(chars / 4));
+    const estimatedPromptTokens = estimateTokens(trimmed.chars);
+    const safetyMultiplier = 1.2;
+    const estimatedPromptCost = estimatedPromptTokens * inputRate;
+    const remainingForOutput = (usdBalance - estimatedPromptCost) / safetyMultiplier;
+    const budgetedMaxTokens = outputRate > 0 ? Math.floor(remainingForOutput / outputRate) : 0;
+    const minMaxTokens = 32;
+    const hardCapMaxTokens = 800;
+
+    if (!Number.isFinite(budgetedMaxTokens) || budgetedMaxTokens < minMaxTokens) {
+      return res.status(403).json({ error: 'Insufficient balance' });
+    }
+
+    const maxTokens = Math.max(minMaxTokens, Math.min(hardCapMaxTokens, budgetedMaxTokens));
 
     const openRouterKey = process.env.OPENROUTER_API_KEY || apiKey;
     
@@ -72,7 +103,8 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
         body: JSON.stringify({
             model: modelId,
             messages: messages,
-            include_costs: true
+            include_costs: true,
+            max_tokens: maxTokens
         })
     });
 
@@ -85,6 +117,8 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
     const data: any = await response.json();
     const reply = data.choices[0].message.content;
     const usage = data.usage; 
+    const finishReason = data?.choices?.[0]?.finish_reason;
+    const limited = finishReason === 'length' || maxTokens < hardCapMaxTokens;
 
     let cost = 0;
     const providedCost = Number(data?.cost);
@@ -138,7 +172,10 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
         reply,
         usage,
         cost,
-        balance: newBalance
+        balance: newBalance,
+        limited,
+        prompt_truncated: trimmed.truncated,
+        max_tokens: maxTokens
     });
 
   } catch (err) {
