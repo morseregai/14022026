@@ -24,6 +24,14 @@ type TranslationKey =
   | 'model'
   | 'amount'
   | 'noSpendings'
+  | 'topUpBalance'
+  | 'gift'
+  | 'giftCodePrompt'
+  | 'giftCodeOk'
+  | 'giftCodeInvalid'
+  | 'giftCodeAlready'
+  | 'giftCodeApplied'
+  | 'gotIt'
   | 'insufficientFundsTitle'
   | 'insufficientFundsBody'
   | 'ok'
@@ -59,6 +67,14 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     model: 'Модель',
     amount: 'Сумма',
     noSpendings: 'Списаний пока нет',
+    topUpBalance: 'Пополните Баланс',
+    gift: 'подарок',
+    giftCodePrompt: 'Введите код:',
+    giftCodeOk: 'ОК',
+    giftCodeInvalid: 'Неверный код',
+    giftCodeAlready: 'Код уже использован',
+    giftCodeApplied: 'Баланс пополнен на $0.01',
+    gotIt: 'Понятно!',
     insufficientFundsTitle: 'Недостаточно средств',
     insufficientFundsBody: 'Пополните баланс или выберите бесплатную модель (например, Xiaomi MiMo V2 Flash).',
     ok: 'Понятно',
@@ -93,6 +109,14 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     model: 'Model',
     amount: 'Amount',
     noSpendings: 'No spending yet',
+    topUpBalance: 'Top up balance',
+    gift: 'Gift',
+    giftCodePrompt: 'Enter code:',
+    giftCodeOk: 'OK',
+    giftCodeInvalid: 'Invalid code',
+    giftCodeAlready: 'Code already used',
+    giftCodeApplied: 'Balance topped up by $0.01',
+    gotIt: 'Got it!',
     insufficientFundsTitle: 'Insufficient funds',
     insufficientFundsBody: 'Top up your balance or choose a free model (for example, Xiaomi MiMo V2 Flash).',
     ok: 'OK',

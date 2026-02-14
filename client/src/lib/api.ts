@@ -41,5 +41,7 @@ export const api = {
 
   transactions: {
     spend: (limit = 10) => api.request(`/transactions/spend?limit=${limit}`),
+    redeemGift: (code: string) =>
+      api.request('/transactions/gift', { method: 'POST', body: JSON.stringify({ code }) }),
   }
 }
