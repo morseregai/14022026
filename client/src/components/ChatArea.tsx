@@ -111,11 +111,47 @@ export default function ChatArea({ sessionId, modelId }: ChatAreaProps) {
     }
   };
 
-  const renderContent = (content: any) => {
-    if (Array.isArray(content)) {
-      return content.map((part: any, i: number) => <span key={i}>{part.text}</span>);
+  const renderText = (text: string) => {
+    const parts: Array<{ type: 'text' | 'code'; lang?: string; value: string }> = [];
+    const re = /```([a-zA-Z0-9_-]+)?\n([\s\S]*?)```/g;
+    let lastIndex = 0;
+    for (;;) {
+      const m = re.exec(text);
+      if (!m) break;
+      if (m.index > lastIndex) {
+        parts.push({ type: 'text', value: text.slice(lastIndex, m.index) });
+      }
+      parts.push({ type: 'code', lang: m[1], value: m[2] });
+      lastIndex = re.lastIndex;
     }
-    return String(content);
+    if (lastIndex < text.length) {
+      parts.push({ type: 'text', value: text.slice(lastIndex) });
+    }
+
+    return parts.map((p, i) => {
+      if (p.type === 'code') {
+        return (
+          <pre
+            key={`c-${i}`}
+            className="mt-2 mb-2 overflow-x-auto rounded-lg border border-[var(--border)] bg-black/30 p-3 text-xs leading-relaxed"
+          >
+            <code className="font-mono whitespace-pre">{p.value}</code>
+          </pre>
+        );
+      }
+      return (
+        <span key={`t-${i}`} className="whitespace-pre-wrap break-words leading-relaxed">
+          {p.value}
+        </span>
+      );
+    });
+  };
+
+  const renderContent = (content: any) => {
+    const text = Array.isArray(content)
+      ? content.map((p: any) => (p?.text == null ? '' : String(p.text))).join('')
+      : String(content ?? '');
+    return renderText(text);
   };
 
   return (
