@@ -1,4 +1,4 @@
-const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:3000/api'
+const API_URL = (import.meta as any).env?.VITE_API_URL || '/api'
 
 export const api = {
   async request(endpoint: string, options: RequestInit = {}) {
@@ -37,5 +37,9 @@ export const api = {
 
   chat: {
     send: (data: any) => api.request('/chat', { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  transactions: {
+    spend: (limit = 10) => api.request(`/transactions/spend?limit=${limit}`),
   }
 }

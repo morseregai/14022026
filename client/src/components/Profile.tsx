@@ -4,6 +4,7 @@ import { Snowflake, User, Wallet, Clock, ArrowRight, LogOut, Settings } from 'lu
 import { api } from '../lib/api'
 import { useAppSettings } from './AppSettingsProvider'
 import ModelsModal from './ModelsModal'
+import SpendingModal from './SpendingModal'
 
 type ProfileData = {
   id: string
@@ -19,6 +20,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<ProfileData | null>(null)
   const [loading, setLoading] = useState(true)
   const [isModelsModalOpen, setIsModelsModalOpen] = useState(false)
+  const [isSpendingModalOpen, setIsSpendingModalOpen] = useState(false)
   const [selectedModel, setSelectedModel] = useState(() => {
     return localStorage.getItem('selectedModel') || 'xiaomi/mimo-v2-flash'
   })
@@ -124,13 +126,22 @@ export default function Profile() {
           <button
             onClick={handleForward}
             className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition flex items-center justify-center gap-2"
+            type="button"
           >
             {t('forward')}
             <ArrowRight className="w-4 h-4" />
           </button>
           <button
+            onClick={() => setIsSpendingModalOpen(true)}
+            className="flex items-center justify-center gap-2 bg-[var(--panel-2)] hover:bg-[var(--panel-2)]/80 border border-[var(--border)] rounded py-2 px-4 transition text-[var(--text)] font-semibold"
+            type="button"
+          >
+            {t('spendings')}
+          </button>
+          <button
             onClick={handleSignOut}
-            className="flex items-center justify-center gap-2 bg-[var(--panel-2)] hover:bg-[var(--panel-2)]/80 border border-[var(--border)] rounded px-4 transition text-[var(--text)]"
+            className="flex items-center justify-center gap-2 bg-[var(--panel-2)] hover:bg-[var(--panel-2)]/80 border border-[var(--border)] rounded py-2 px-4 transition text-[var(--text)]"
+            type="button"
           >
             <LogOut className="w-4 h-4" />
             {t('signOut')}
@@ -148,6 +159,8 @@ export default function Profile() {
           window.dispatchEvent(new Event('model-updated'))
         }}
       />
+
+      <SpendingModal isOpen={isSpendingModalOpen} onClose={() => setIsSpendingModalOpen(false)} />
     </div>
   )
 }

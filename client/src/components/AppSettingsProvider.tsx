@@ -18,6 +18,12 @@ type TranslationKey =
   | 'selectChat'
   | 'startNewChat'
   | 'selectModel'
+  | 'spendings'
+  | 'spendingsTitle'
+  | 'dateTime'
+  | 'model'
+  | 'amount'
+  | 'noSpendings'
   | 'insufficientFundsTitle'
   | 'insufficientFundsBody'
   | 'ok'
@@ -47,6 +53,12 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     selectChat: 'Выберите чат или создайте новый',
     startNewChat: 'Начать новый чат',
     selectModel: 'Выбор модели',
+    spendings: 'Траты',
+    spendingsTitle: 'Последние траты',
+    dateTime: 'Дата/время',
+    model: 'Модель',
+    amount: 'Сумма',
+    noSpendings: 'Списаний пока нет',
     insufficientFundsTitle: 'Недостаточно средств',
     insufficientFundsBody: 'Пополните баланс или выберите бесплатную модель (например, Xiaomi MiMo V2 Flash).',
     ok: 'Понятно',
@@ -75,6 +87,12 @@ const translations: Record<Locale, Record<TranslationKey, string>> = {
     selectChat: 'Select a chat or start a new one',
     startNewChat: 'Start new chat',
     selectModel: 'Select model',
+    spendings: 'Spending',
+    spendingsTitle: 'Recent spending',
+    dateTime: 'Date/time',
+    model: 'Model',
+    amount: 'Amount',
+    noSpendings: 'No spending yet',
     insufficientFundsTitle: 'Insufficient funds',
     insufficientFundsBody: 'Top up your balance or choose a free model (for example, Xiaomi MiMo V2 Flash).',
     ok: 'OK',

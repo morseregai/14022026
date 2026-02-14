@@ -71,7 +71,8 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
         },
         body: JSON.stringify({
             model: modelId,
-            messages: messages
+            messages: messages,
+            include_costs: true
         })
     });
 
@@ -86,7 +87,10 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
     const usage = data.usage; 
 
     let cost = 0;
-    if (usage) {
+    const providedCost = Number(data?.cost);
+    if (Number.isFinite(providedCost) && providedCost >= 0) {
+        cost = providedCost;
+    } else if (usage) {
         cost = (usage.prompt_tokens * inputRate) + (usage.completion_tokens * outputRate);
     }
 
