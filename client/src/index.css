@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root,
+html[data-theme='dark'] {
+  --bg: #0b1220;
+  --panel: #111827;
+  --panel-2: #1f2937;
+  --border: #374151;
+  --text: #f9fafb;
+  --muted: #9ca3af;
+}
+
+html[data-theme='light'] {
+  --bg: #f8fafc;
+  --panel: #ffffff;
+  --panel-2: #f1f5f9;
+  --border: #e2e8f0;
+  --text: #0f172a;
+  --muted: #475569;
+}
+
+html {
+  color-scheme: light dark;
+}
