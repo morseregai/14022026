@@ -20,6 +20,21 @@ export default function ChatArea({ sessionId, modelId }: ChatAreaProps) {
   const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const minBalanceUsd = 0.001;
+  const isFreeModel = modelId === 'xiaomi/mimo-v2-flash';
+
+  const readUsdBalance = (): number => {
+    const raw = localStorage.getItem('user');
+    if (!raw) return 0;
+    try {
+      const u = JSON.parse(raw);
+      const v = typeof u?.usd_balance === 'string' ? Number(u.usd_balance) : u?.usd_balance;
+      return Number.isFinite(v) ? v : 0;
+    } catch {
+      return 0;
+    }
+  };
+
   useEffect(() => {
     loadMessages();
   }, [sessionId]);
@@ -46,6 +61,11 @@ export default function ChatArea({ sessionId, modelId }: ChatAreaProps) {
   };
 
   const handleSend = async (text: string) => {
+    if (!isFreeModel && readUsdBalance() <= minBalanceUsd) {
+      setIsBalanceModalOpen(true);
+      return;
+    }
+
     const newMessages: Message[] = [
       ...messages,
       { role: 'user', content: [{ text }] }

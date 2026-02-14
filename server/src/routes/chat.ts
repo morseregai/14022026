@@ -36,7 +36,10 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
       return res.status(500).json({ error: 'Failed to fetch user balance' });
     }
 
-    if (!isFreeModel && userData.usd_balance <= 0) {
+    const minBalanceUsd = 0.001;
+    const usdBalance = Number(userData.usd_balance);
+
+    if (!isFreeModel && (!Number.isFinite(usdBalance) || usdBalance <= minBalanceUsd)) {
         return res.status(403).json({ error: 'Insufficient balance' });
     }
 
@@ -87,7 +90,7 @@ router.post('/', authenticateUser, async (req: any, res: any) => {
         cost = (usage.prompt_tokens * inputRate) + (usage.completion_tokens * outputRate);
     }
 
-    let newBalance = userData.usd_balance;
+    let newBalance = Number.isFinite(usdBalance) ? usdBalance : 0;
     if (cost > 0) {
       const { data: updatedBalance, error: spendError } = await supabaseAdmin.rpc('spend_balance', {
         p_user_id: user.id,
